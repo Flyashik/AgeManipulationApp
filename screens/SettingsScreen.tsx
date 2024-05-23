@@ -2,8 +2,25 @@ import * as React from 'react';
 import {View, Text, StyleSheet, TouchableOpacity} from 'react-native';
 import {Ionicons} from "@expo/vector-icons";
 import BouncyCheckbox from "react-native-bouncy-checkbox";
+import * as FileSystem from 'expo-file-system';
 
 const SettingsScreen: React.FC = () => {
+    const clearCache = async () => {
+        const documentDirectory = FileSystem.documentDirectory;
+
+        try {
+            const files = await FileSystem.readDirectoryAsync(documentDirectory!);
+
+            for (const file of files) {
+                const filePath = `${documentDirectory}${file}`;
+                await FileSystem.deleteAsync(filePath, { idempotent: true });
+            }
+            console.log('Document directory cleared successfully.');
+        } catch (error) {
+            console.error('Error clearing document directory:', error);
+        }
+    }
+
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -18,7 +35,7 @@ const SettingsScreen: React.FC = () => {
                     innerIconStyle={{ borderWidth: 2, borderRadius: 5 }}
                     onPress={(isChecked: boolean) => {}}
                 />
-                <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', width: '50%', gap: 15}}>
+                <TouchableOpacity style={{flexDirection: 'row', alignItems: 'center', width: '50%', gap: 15}} onPress={()=> clearCache()}>
                     <Ionicons name="trash-outline" color="red" size={24} />
                     <Text style={{ fontSize: 16, color: 'red', fontWeight: '500' }}>Очистить кэш</Text>
                 </TouchableOpacity>

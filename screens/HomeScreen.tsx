@@ -1,10 +1,13 @@
 import * as React from 'react';
-import {FlatList, Image, ListRenderItem, StyleSheet, Text, View} from 'react-native';
+import {FlatList, Image, ListRenderItem, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 import { Ionicons } from "@expo/vector-icons";
 import {useEffect, useState} from "react";
 import * as FileSystem from "expo-file-system";
+import {CommonActions, useNavigation} from "@react-navigation/native";
 
 const HomeScreen: React.FC = () => {
+    const navigation = useNavigation();
+
     const [images, setImages] = useState<string[]>([]);
 
     useEffect(() => {
@@ -23,9 +26,24 @@ const HomeScreen: React.FC = () => {
 
     const renderImageItem: ListRenderItem<string> = ({ item }) => {
         return (
-            <Image source={{ uri: item }} style={styles.imageItem} />
+            <TouchableOpacity onPress={() => navigateToAging(item)} style={{padding: 2}}>
+                <Image source={{ uri: item }} style={styles.imageItem} />
+            </TouchableOpacity>
         );
     };
+
+    const navigateToAging = async (item: string) => {
+        const base64 = await FileSystem.readAsStringAsync(item, {
+            encoding: FileSystem.EncodingType.Base64,
+        });
+
+        navigation.dispatch(
+            CommonActions.reset({
+                index: 0,
+                routes: [{name: 'Aging', params: { imageUri: item, base64: base64 } }],
+            })
+        );
+    }
 
     return (
         <View style={styles.container}>
@@ -50,25 +68,30 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         flexDirection: 'column',
+        alignItems: 'center',
         backgroundColor: '#fff',
     },
     recentBlock: {
         flex: 1,
         flexDirection: 'column',
-        marginTop: 100, paddingHorizontal: 10,
+        marginTop: 100, paddingHorizontal: 5,
         backgroundColor: '#fff',
     },
     recentHeader: {
+        width: '100%',
         flexDirection: 'row',
     },
     imageGrid: {
         marginTop: 10,
+        paddingHorizontal: 5,
+        gap: 5,
     },
     imageItem: {
-        width: 100,
-        height: 100,
-        margin: 5,
-        backgroundColor: '#e0e0e0'
+        width: 120,
+        height: 120,
+        marginTop: 5,
+        backgroundColor: '#e0e0e0',
+        borderRadius: 5,
     },
 });
 

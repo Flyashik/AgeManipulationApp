@@ -56,7 +56,7 @@ const ImagePickerSheet: React.FC<{ forwardedRef: ForwardedRef<ImagePickerSheet> 
         handleCloseModal();
         let result = await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ImagePicker.MediaTypeOptions.Images,
-            allowsEditing: false,
+            allowsEditing: true,
             base64: true,
             allowsMultipleSelection: false,
         });

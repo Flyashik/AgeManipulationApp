@@ -7,6 +7,7 @@ import Slider from "@react-native-community/slider";
 import {useState} from "react";
 import {RootStackParamList} from "../navigation/Navigation";
 import * as FileSystem from 'expo-file-system';
+import {saveToLibraryAsync} from "expo-media-library";
 
 type AgingScreenProps = NativeStackScreenProps<RootStackParamList, 'Aging'>;
 
@@ -30,29 +31,38 @@ const AgingScreen: React.FC<AgingScreenProps> = ({route}) => {
 
     const generateImage = async () => {
         setLoading(true);
-        // const response = await fetch('http://192.168.0.11:5000', {
-        //     method: 'POST',
-        //     headers: {
-        //         Accept: 'application/json',
-        //         'Content-Type': 'application/json',
-        //     },
-        //     body: JSON.stringify({
-        //         targetAge: sliderValue,
-        //         imageData: image!.base64,
-        //     }),
-        // });
-        // if (response.ok) {
-        //     setResultImage('hello');
-        // }
-        await saveImage();
-        setLoading(false);
+        try {
+            const response = await fetch('http://192.168.0.11:5000/generate', {
+                method: 'POST',
+                headers: {
+                    Accept: 'application/json',
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    targetAge: sliderValue,
+                    imageData: image.base64,
+                }),
+            });
+            if (response.ok) {
+                const data = await response.json();
+                setResultImage(data.base64);
+            } else {
+                console.error('Failed to fetch');
+            }
+        } catch (e) {
+            console.error(e);
+        } finally {
+            setLoading(false);
+        }
+        setResultImage(image.base64);
     };
 
     const saveImage = async () => {
         try {
-            const fileName = `${FileSystem.documentDirectory}${Date.now()}.jpg`;
-            await FileSystem.writeAsStringAsync(fileName, image.base64, { encoding: FileSystem.EncodingType.Base64 });
-            return fileName;
+            const fileName = `${FileSystem.cacheDirectory}${Date.now()}.jpg`;
+            await FileSystem.writeAsStringAsync(fileName, resultImage!, { encoding: FileSystem.EncodingType.Base64 });
+
+            await saveToLibraryAsync(fileName);
         } catch (error) {
             console.error("Error saving image: ", error);
         }
@@ -73,7 +83,14 @@ const AgingScreen: React.FC<AgingScreenProps> = ({route}) => {
                         </TouchableOpacity>
                     </View>
                     {resultImage ? (
-                        <></>
+                        <>
+                            <Image source={{ uri: `data:image/png;base64,${resultImage}` }} style={styles.image} />
+                            <View style={styles.bottomPanel}>
+                                <TouchableOpacity style={styles.genButton} onPress={() => saveImage()}>
+                                    <Text style={{...styles.text, color: 'white'}}>Сохранить в галерею</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </>
                     ) : (
                         <>
                             <Image source={{uri: image.imageUri}} style={styles.image}/>
