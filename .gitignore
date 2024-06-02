@@ -33,3 +33,33 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+.gitignore
+AgeManipulationApp.iml
+codeStyleConfig.xml
+deno.xml
+modules.xml
+vcs.xml
+build.gradle
+debug.keystore
+proguard-rules.pro
+AndroidManifest.xml
+MainActivity.kt
+MainApplication.kt
+splashscreen_image.png
+rn_edit_text_material.xml
+splashscreen.xml
+ic_launcher.xml
+ic_launcher_round.xml
+ic_launcher.png
+ic_launcher_foreground.png
+ic_launcher_round.png
+colors.xml
+strings.xml
+styles.xml
+gradle.properties
+gradle-wrapper.jar
+gradle-wrapper.properties
+gradlew
+gradlew.bat
+settings.gradle
+package-lock.json
